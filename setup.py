@@ -16,7 +16,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 AUTHOR = "Mpho Mphego"
 DESCRIPTION = "Web scrapping tool for Vehicle information by VIN number"
 EMAIL = "mpho112@gmail.com"
-NAME = "vehicle_history_reports"
+NAME = "vin_scrapper"
 REQUIRED = [
     # put all required packages here
     "beautifulsoup4==4.7.1",
@@ -27,8 +27,8 @@ REQUIRED = [
 ]
 
 REQUIRES_PYTHON = ">=3.6.0"
-URL = "https://github.com/mmphego/vehicle_history_reports"
-VERSION = "0.1.0"
+URL = "https://github.com/mmphego/vin_scrapper"
+VERSION = "0.1.1"
 
 
 try:
@@ -109,7 +109,7 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=find_packages(
-        include=["vehicle_history_reports"],
+        include=["vin_scrapper"],
         exclude=["tests", "*.tests", "*.tests.*", "tests.*"],
     ),
     install_requires=REQUIRED,
@@ -124,7 +124,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    keywords="vehicle_history_reports",
+    keywords="vin_scrapper",
     test_suite="tests",
     tests_require=["pytest", "unittest"],
     project_urls={
