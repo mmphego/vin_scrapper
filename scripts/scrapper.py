@@ -28,10 +28,10 @@ def main():
         "--no-headless",
         dest="headless",
         action="store_false",
-        help="Do not open browser in headless mode.",
+        help="Open browser [Debugging mode].",
     )
     parser.add_argument(
-        "--json-output", action="store_false", help="Output as json.",
+        "--no-json-output", action="store_false", help="Output as json.",
     )
     parser.add_argument("--host", dest="host", help="Proxy address. [Optional]")
     parser.add_argument("--port", dest="port", help="Proxy port. [Optional]")
@@ -69,7 +69,7 @@ def main():
     finally:
         return (
             json.dumps(data, indent=4, sort_keys=True)
-            if args.get("json_output")
+            if args.get("no_json_output")
             else data
         )
 

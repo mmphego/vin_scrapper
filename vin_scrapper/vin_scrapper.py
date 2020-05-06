@@ -270,7 +270,6 @@ class VinScrapper:
         licence_plate_input.send_keys(self.licence_number)
         time.sleep(1)  # Wait a second before hitting the Enter
         # Press Enter key
-
         dropdown_selector = self.driver.find_element_by_css_selector(
             self._dropdown_css_selector
         )
@@ -291,7 +290,7 @@ class VinScrapper:
                 location.lower(): f"{self._dropdown_list_item}-{count}"
                 for count, location in enumerate(dropdown_menu.text.split("\n"))
             }
-            selected_location = locations_dict[self.location.lower()]
+            selected_location = locations_dict[self._licence_plate_webstate["state"]]
             location_selector = self.driver.find_element_by_id(selected_location)
             location_selector.click()
             time.sleep(0.5)  # Wait a second before hitting the Enter
@@ -300,7 +299,6 @@ class VinScrapper:
                 self._search_button_css_selector
             )
             search_button.click()
-            time.sleep(1)
 
     @property
     def page_source(self):
