@@ -28,7 +28,7 @@ REQUIRED = [
 
 REQUIRES_PYTHON = ">=3.6.0"
 URL = "https://github.com/mmphego/vin_scrapper"
-VERSION = "0.1.1"
+VERSION = None
 
 
 try:
@@ -44,7 +44,7 @@ if not VERSION:
     with open(os.path.join(here, project_slug, "__version__.py")) as f:
         exec(f.read(), about)
 else:
-    about["__version__"] = VERSION
+    about["__version__"] = VERSION if VERSION else "0.0.1"
 
 SCRIPTS = []
 for dirname, dirnames, filenames in os.walk("scripts"):

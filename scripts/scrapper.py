@@ -22,7 +22,7 @@ def main():
         required=True,
         type=str,
         help=("A location where licence is registered.\n"
-            "Example: --location CA [ie California]."),
+            "\tExample: --location CA [ie California]."),
     )
     parser.add_argument(
         "--no-headless",

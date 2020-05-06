@@ -156,9 +156,15 @@ class VinScrapper:
                     "wi": "wisconsin",
                     "wy": "wyoming",
                 }
-                self._licence_plate_webstate["state"] = available_locations[
-                    self.location.lower()
-                ]
+                try:
+                    self._licence_plate_webstate["state"] = available_locations[
+                        self.location.lower()
+                    ]
+                except KeyError:
+                    raise RuntimeError(
+                        f"{self.location} cannot be found in the available "
+                        f"locations: {available}"
+                    )
 
         self.headless = None
         if kwargs.get("headless"):
