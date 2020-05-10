@@ -76,4 +76,4 @@ def main():
 
 if __name__ == "__main__":
     data = main()
-    print(f"JSON output: {data}")
+    print(data)

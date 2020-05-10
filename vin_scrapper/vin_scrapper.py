@@ -260,44 +260,64 @@ class VinScrapper:
 
     def navigate_site(self):
         """Navigate through the website"""
-        licence_plate_input = WebDriverWait(self.driver, self._timeout).until(
-            EC.presence_of_element_located((By.ID, self._licence_plate_webinput))
-        )
-        licence_plate_input = self.driver.find_element_by_id(
-            self._licence_plate_webinput
-        )
-        licence_plate_input.send_keys(self.licence_number)
+        ids = [
+            i.get("id")
+            for i in self.page_source.find_all(
+                "input", attrs={"data-cy": "license-plate-txt-field"}
+            )
+        ]
+        self.logger.debug(f"Found input tag from page source: {ids}")
+        for _id in ids:
+            licence_plate_input = self.driver.find_element_by_id(_id)
+            try:
+                licence_plate_input.send_keys(self.licence_number)
+                self.logger.debug(
+                    f"Sent keys: {self.licence_number} on tag id: {_id}"
+                )
+            except webdriver.remote.errorhandler.ElementNotInteractableException:
+                pass
+            except Exception as err:
+                raise err
         time.sleep(1)  # Wait a second before hitting the Enter
         # Press Enter key
         dropdown_selector = self.driver.find_element_by_css_selector(
             self._dropdown_css_selector
         )
+
         dropdown_selector.click()
         time.sleep(1)  # Wait a second before hitting the Enter
-        if dropdown_selector.is_displayed():
-            time.sleep(1)  # Wait a second before hitting the Enter
-            dropdown_menu_table = "#list-104"
-            dropdown_menu = self.driver.find_element_by_css_selector(
-                dropdown_menu_table
-            )
-            for i in range(4):
-                time.sleep(0.5)
-                dropdown_menu.send_keys(Keys.END)
-            dropdown_menu.send_keys(Keys.HOME)
+        if not dropdown_selector.is_displayed():
+            raise MissingPageSource("Could not select the dropdown menu.")
 
-            locations_dict = {
-                location.lower(): f"{self._dropdown_list_item}-{count}"
-                for count, location in enumerate(dropdown_menu.text.split("\n"))
-            }
-            selected_location = locations_dict[self._licence_plate_webstate["state"]]
-            location_selector = self.driver.find_element_by_id(selected_location)
-            location_selector.click()
-            time.sleep(0.5)  # Wait a second before hitting the Enter
+        time.sleep(1)  # Wait a second before hitting the Enter
+        dropdown_menu_table = "/html/body/div[1]/div/div/div[2]"
+        dropdown_menu = self.driver.find_element_by_xpath(dropdown_menu_table)
+        for i in range(4):
+            time.sleep(0.5)
+            dropdown_menu.send_keys(Keys.END)
+        dropdown_menu.send_keys(Keys.HOME)
 
-            search_button = self.driver.find_element_by_css_selector(
-                self._search_button_css_selector
-            )
-            search_button.click()
+        # locations_dict = {
+        #     location.lower(): f"{self._dropdown_list_item}-{count}"
+        #     for count, location in enumerate(dropdown_menu.text.split("\n"))
+        # }
+
+        id_tags = [i for i in self.page_source("div") if i.get("id")]
+        id_lists = [i for i in id_tags if "list" in i.attrs.get("id")]
+        selected_location = ''.join(
+            idx.attrs["id"]
+            for idx in id_lists
+            if idx.text.lower() == self._licence_plate_webstate["state"]
+        )
+
+        location_selector = self.driver.find_element_by_id(selected_location)
+        location_selector.click()
+        time.sleep(0.5)  # Wait a second before hitting the Enter
+
+        search_button = self.driver.find_element_by_css_selector(
+            self._search_button_css_selector
+        )
+        search_button.click()
 
     @property
     def page_source(self):
