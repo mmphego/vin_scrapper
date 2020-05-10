@@ -1,10 +1,9 @@
 
-# Vehicle History Reports
+# VIN Scrapper
 
-![GitHub](https://img.shields.io/github/license/mmphego/vehicle_history_reports.svg)[![Build Status](https://img.shields.io/travis/mmphego/vehicle_history_reportssvg)](https://travis-ci.com/mmphego/vehicle_history_reports)
 [![Python](https://img.shields.io/badge/Python-3.6%2B-red.svg)](https://www.python.org/downloads/)
 
-Web scrapping tool for Vehicle information by VIN number
+Web scrapping tool for retrieving VIN number by licence and location
 
 # Installation
 
@@ -26,73 +25,52 @@ This is the preferred method to install Vehicle History Reports, as it will alwa
 # Usage
 
 ```bash
-usage: vin_scrapper.py [-h] --vin-numbers VIN_NUMBERS [VIN_NUMBERS ...]
-                       [--no-headless] [--no-json-output] [--host HOST]
-                       [--port PORT] [--username USERNAME]
-                       [--password PASSWORD] [--loglevel LOG_LEVEL]
+usage: scrapper.py [-h] --url URL --licence-number LICENCE_NUMBER --location LOCATION
+                   [--no-headless] [--no-json-output] [--proxy-host HOST]
+                   [--proxy-port PORT] [--proxy-username USERNAME]
+                   [--proxy-password PASSWORD] [--alt-proxy] [--web_username WEB_USERNAME]
+                   [--web_password WEB_PASSWORD] [--loglevel LOG_LEVEL]
 
 Web scrapping tool for Vehicle information by VIN number
 
 optional arguments:
   -h, --help            show this help message and exit
-  --vin-numbers VIN_NUMBERS [VIN_NUMBERS ...], -v VIN_NUMBERS [VIN_NUMBERS ...]
-                        A list of VIN numbers.
-  --no-headless         Do not open browser in headless mode.
-  --no-json-output, -j  Output as json.
-  --host HOST           Proxy address.
-  --port PORT           Proxy port.
-  --username USERNAME   Username to access proxy.
-  --password PASSWORD   Password to access proxy.
-  --loglevel LOG_LEVEL  log level to use, default [INFO], options [INFO,
-                        DEBUG, ERROR]
+  --url URL             Accessing URL
+  --licence-number LICENCE_NUMBER
+                        A licence number.
+  --location LOCATION   A location where licence is registered.
+                          Example: --location CA [ie California].
+  --no-headless         Open browser [Debugging mode].
+  --no-json-output      Output as json.
+  --proxy-host HOST     Proxy address. [Optional]
+  --proxy-port PORT     Proxy port. [Optional]
+  --proxy-username USERNAME
+                        Username to access proxy. [Optional]
+  --proxy-password PASSWORD
+                        Password to access proxy. [Optional]
+  --alt-proxy           Alternative proxy method [Optional]
+  --web_username WEB_USERNAME
+                        Username to access the website (if any).
+  --web_password WEB_PASSWORD
+                        Password to access the website (if any).
+  --loglevel LOG_LEVEL  log level to use, default [INFO], options [INFO, DEBUG, ERROR]
 ```
 
 Example:
-`vin_scrapper.py --vin-numbers 3AKJGLD57FSGD1225 --host 23.94.44.65 --port 10998`
 
-## Usage with PHP
-
-**Example**:
-
-Copy below code to `run.php`
-
-```php
-<html>
- <body>
-  <head>
-   <title>
-     run
-   </title>
-  </head>
-
-   <form method="post">
-
-    <input type="submit" value="GO" name="GO">
-   </form>
- </body>
-</html>
-
-<?php
-    if(isset($_POST['GO']))
-    {
-      $message = shell_exec("python3 /usr/local/bin/vin_scrapper.py --vin-numbers JN8AZ2NC3G9400704 --host 23.94.44.65 --port 10998");
-      print_r($message);
-    }
-?>
-
+**No Proxy**
 ```
-Run php:
-`php -S 127.0.0.1:8080 -t .`
+scrapper.py --url https://www.vehiclehistory.com/license-plate-search --licence-number 33878M1 --location CA
+```
 
-then in your browser goto: http://localhost:8080/run.php hit `Go` and see the scrapping....
+**Proxy auth**
+```
+python scripts/scrapper.py --url https://www.vehiclehistory.com/license-plate-search --licence-number 33878M1 --location CA --proxy-host 23.229.37.50 --proxy-port 34223 --proxy-username netkingz9 --proxy-password test123
+```
 
-# Demo
+**Proxy auth (Fallback)**
+```
+python scripts/scrapper.py --url https://www.vehiclehistory.com/license-plate-search --licence-number 33878M1 --location CA --proxy-host 23.229.37.50 --proxy-port 34223 --proxy-username netkingz9 --proxy-password test123 --alt-proxy
+```
 
-![demo](assets/demo.gif)
 
-# Oh, Thanks!
-
-By the way...
-Click if you'd like to [saythanks](https://saythanks.io/to/>mmphego)... :) else *Star* it.
-
-✨🍰✨
