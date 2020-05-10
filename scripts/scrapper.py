@@ -33,14 +33,18 @@ def main():
     parser.add_argument(
         "--no-json-output", action="store_false", help="Output as json.",
     )
-    parser.add_argument("--host", dest="host", help="Proxy address. [Optional]")
-    parser.add_argument("--port", dest="port", help="Proxy port. [Optional]")
+    parser.add_argument("--proxy-host", dest="host", help="Proxy address. [Optional]")
+    parser.add_argument("--proxy-port", dest="port", help="Proxy port. [Optional]")
     parser.add_argument(
-        "--username", dest="username", help="Username to access proxy. [Optional]"
+        "--proxy-username", dest="username", help="Username to access proxy. [Optional]"
     )
     parser.add_argument(
-        "--password", dest="password", help="Password to access proxy. [Optional]"
+        "--proxy-password", dest="password", help="Password to access proxy. [Optional]"
     )
+    parser.add_argument(
+        "--alt-proxy", dest="alt_proxy",action="store_true", help="Alternative proxy method [Optional]"
+    )
+
     parser.add_argument(
         "--web_username", help="Username to access the website (if any)."
     )

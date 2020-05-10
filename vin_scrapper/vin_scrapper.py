@@ -14,12 +14,14 @@ import psutil
 from bs4 import BeautifulSoup
 from loguru import logger
 from selenium import webdriver
+from seleniumwire import webdriver as wirewebdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager import chrome as chrome_manager, firefox as firefox_manager
 
 
 class ProxySettings:
@@ -38,6 +40,7 @@ class ProxySettings:
         self.port = kwargs.get("port", None)
         self.username = kwargs.get("username", None)
         self.password = kwargs.get("password", None)
+        self.seleniumwire = kwargs.get("alt_proxy", False)
 
     def __repr__(self):
         return repr(
@@ -198,6 +201,23 @@ class VinScrapper:
         if kwargs.get("web_password"):
             self.web_password = kwargs.get("web_password")
 
+    def _disable_Images_Firefox_Profile(self):
+        """Summary
+
+        Returns:
+            Object: FirefoxProfile
+        """
+        # get the Firefox profile object
+        firefoxProfile = webdriver.FirefoxProfile()
+        # Disable images
+        firefoxProfile.set_preference("permissions.default.image", 2)
+        # Disable Flash
+        firefoxProfile.set_preference(
+            "dom.ipc.plugins.enabled.libflashplayer.so", "false"
+        )
+        # Set the modified profile while creating the browser object
+        return firefoxProfile
+
     def _setup_proxy(self):
         """Simplified Firefox Proxy settings"""
         firefox_profile = webdriver.FirefoxProfile()
@@ -209,6 +229,8 @@ class VinScrapper:
         firefox_profile.set_preference("network.proxy.http_port", int(self.proxy.port))
         firefox_profile.set_preference("network.proxy.ssl", self.proxy.host)
         firefox_profile.set_preference("network.proxy.ssl_port", int(self.proxy.port))
+        firefox_profile.set_preference("network.proxy.socks", self.proxy.host)
+        firefox_profile.set_preference("network.proxy.socks_port", int(self.proxy.port))
         # firefox_profile.set_preference("network.automatic-ntlm-auth.allow-proxies", False)
         # firefox_profile.set_preference("network.negotiate-auth.allow-proxies", False)
         firefox_profile.set_preference(
@@ -227,11 +249,12 @@ class VinScrapper:
             firefox_profile.set_preference(
                 "network.proxy.socks_password", self.proxy.password
             )
-        # Deprecated
-        # firefox_profile.add_extension('close_proxy_authentication-1.1.xpi')
-        # credentials = f"{self.proxy.username}:{self.proxy.password}"
-        # credentials = b64encode(credentials.encode("ascii")).decode("utf-8")
-        # firefox_profile.set_preference("extensions.closeproxyauth.authtoken", credentials)
+            firefox_profile.set_preference(
+                "network.proxy.https_username", self.proxy.username
+            )
+            firefox_profile.set_preference(
+                "network.proxy.https_password", self.proxy.password
+            )
         firefox_profile.update_preferences()
         return firefox_profile
 
@@ -240,13 +263,44 @@ class VinScrapper:
         options = Options()
         options.headless = headless
         profile = None
-        if self.proxy:
-            self.logger.info("Accessing URL using proxy settings: {}", self.proxy)
-            profile = self._setup_proxy()
 
-        self.driver = webdriver.Firefox(
-            options=options, firefox_profile=profile, timeout=self._timeout
-        )
+        if self.proxy:
+            if self.proxy.seleniumwire:
+                self.logger.info(
+                    "Accessing URL using alternative proxy settings: {}", self.proxy
+                )
+                proxy_settings = f"http://{self.proxy.username}:{self.proxy.password}@{self.proxy.host}:{self.proxy.port}"
+                seleniumwire_options = {
+                    "proxy": {
+                        "http": proxy_settings,
+                        "https": proxy_settings,
+                        "socks": proxy_settings,
+                        "no_proxy": "localhost,127.0.0.1",
+                    }
+                }
+                self.driver = wirewebdriver.Firefox(executable_path=firefox_manager.GeckoDriverManager().install(),
+                    options=options,
+                    seleniumwire_options=seleniumwire_options,
+                    timeout=self._timeout,
+                )
+            else:
+                self.logger.info("Accessing URL using proxy settings: {}", self.proxy)
+                profile = self._setup_proxy()
+                self.driver = webdriver.Firefox(
+                    executable_path=firefox_manager.GeckoDriverManager().install(),
+                    options=options,
+                    firefox_profile=profile,
+                    timeout=self._timeout,
+                )
+
+        else:
+            self.driver = webdriver.Firefox(
+                executable_path=firefox_manager.GeckoDriverManager().install(),
+                options=options,
+                firefox_profile=profile,
+                timeout=self._timeout,
+            )
+
         self.logger.info("Accessing: {}", self.url)
         self.driver.get(self.url)
         self.logger.info("Successfully opened: {}", self.url)
@@ -260,6 +314,11 @@ class VinScrapper:
 
     def navigate_site(self):
         """Navigate through the website"""
+
+        # Debugging
+        # curl 'https://www.vehiclehistory.com/graphql' \
+        # --data-binary $'{"operationName":"licensePlate","variables":{"number":"","state":""},"query":"query licensePlate($number: String\u0021, $state: String\u0021) {\\n  licensePlate(number: $number, state: $state) {\\n    vin\\n    __typename\\n  }\\n}\\n"}' \
+
         ids = [
             i.get("id")
             for i in self.page_source.find_all(
@@ -271,9 +330,7 @@ class VinScrapper:
             licence_plate_input = self.driver.find_element_by_id(_id)
             try:
                 licence_plate_input.send_keys(self.licence_number)
-                self.logger.debug(
-                    f"Sent keys: {self.licence_number} on tag id: {_id}"
-                )
+                self.logger.debug(f"Sent keys: {self.licence_number} on tag id: {_id}")
             except webdriver.remote.errorhandler.ElementNotInteractableException:
                 pass
             except Exception as err:
@@ -304,7 +361,7 @@ class VinScrapper:
 
         id_tags = [i for i in self.page_source("div") if i.get("id")]
         id_lists = [i for i in id_tags if "list" in i.attrs.get("id")]
-        selected_location = ''.join(
+        selected_location = "".join(
             idx.attrs["id"]
             for idx in id_lists
             if idx.text.lower() == self._licence_plate_webstate["state"]

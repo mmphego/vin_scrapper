@@ -20,10 +20,12 @@ NAME = "vin_scrapper"
 REQUIRED = [
     # put all required packages here
     "beautifulsoup4==4.7.1",
-    "requests==2.22.0",
-    "selenium==3.141.0",
+    "loguru",
     "psutil==5.6.3",
-    "loguru"
+    "requests==2.22.0",
+    "selenium-wire==1.0.11",
+    "selenium==3.141.0",
+    "webdriver-manager==2.4.0",
 ]
 
 REQUIRES_PYTHON = ">=3.6.0"
@@ -109,8 +111,7 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=find_packages(
-        include=["vin_scrapper"],
-        exclude=["tests", "*.tests", "*.tests.*", "tests.*"],
+        include=["vin_scrapper"], exclude=["tests", "*.tests", "*.tests.*", "tests.*"],
     ),
     install_requires=REQUIRED,
     include_package_data=True,
