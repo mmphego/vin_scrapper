@@ -60,17 +60,35 @@ Example:
 
 **No Proxy**
 ```
-scrapper.py --url https://www.vehiclehistory.com/license-plate-search --licence-number 33878M1 --location CA
+scrapper.py \
+--url https://www.vehiclehistory.com/license-plate-search \
+--licence-number 33878M1 \
+--location CA
 ```
 
 **Proxy auth**
 ```
-python scripts/scrapper.py --url https://www.vehiclehistory.com/license-plate-search --licence-number 33878M1 --location CA --proxy-host 23.229.37.50 --proxy-port 34223 --proxy-username netkingz9 --proxy-password test123
+scrapper.py \
+--url https://www.vehiclehistory.com/license-plate-search \
+--licence-number 33878M1 \
+--location CA \
+--proxy-host 23.229.37.50 \
+--proxy-port 34223 \
+--proxy-username netkingz9 \
+--proxy-password test123
 ```
 
 **Proxy auth (Fallback)**
 ```
-python scripts/scrapper.py --url https://www.vehiclehistory.com/license-plate-search --licence-number 33878M1 --location CA --proxy-host 23.229.37.50 --proxy-port 34223 --proxy-username netkingz9 --proxy-password test123 --alt-proxy
+scrapper.py \
+--url https://www.vehiclehistory.com/license-plate-search \
+--licence-number 33878M1 \
+--location CA \
+--proxy-host 23.229.37.50 \
+--proxy-port 34223 \
+--proxy-username netkingz9 \
+--proxy-password test123 \
+--alt-proxy
 ```
 
 
