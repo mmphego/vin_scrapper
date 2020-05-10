@@ -247,10 +247,9 @@ class VinScrapper:
         self.driver = webdriver.Firefox(
             options=options, firefox_profile=profile, timeout=self._timeout
         )
-        url = "https://driving-tests.org/vin-decoder/" if not self.url else self.url
-        self.logger.info("Accessing: {}", url)
-        self.driver.get(url)
-        self.logger.info("Successfully opened: {}", url)
+        self.logger.info("Accessing: {}", self.url)
+        self.driver.get(self.url)
+        self.logger.info("Successfully opened: {}", self.url)
 
     def login(self):
         if (self.web_password and self.web_username) is None:
